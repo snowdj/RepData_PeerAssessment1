@@ -26,7 +26,7 @@ myData<-na.omit(myData)
 myData$steps <- as.numeric(myData$steps)
 myData$date <- as.Date(myData$date, "%Y-%m-%d")
 myData$interval <- as.numeric(myData$interval)
-
+head(myData)
 ```
 
 ## What is mean total number of steps taken per day?
@@ -36,8 +36,13 @@ myData$interval <- as.numeric(myData$interval)
 ```{r, echo = TRUE}
 steps_per_day <- aggregate(myData$steps, by=list(myData$date),sum)
 
-hist(steps_per_day$x, breaks=10, xlab="Steps_per_day")
 
+str(steps_per_day)
+list(myData$date)
+hist(steps_per_day$x, , xlab="Steps_per_day")
+
+tdf <- ddply(myData, ~ date, summarise, totalsteps=sum(steps, na.rm=TRUE))
+hist(tdf$totalsteps, breaks=10, main="Histogram of Total Steps", xlab="Total Steps", ylab="Frequency")
 
 
 ```
@@ -48,6 +53,8 @@ mean(steps_per_day$x)
 
 median(steps_per_day$x)
 
+median(tdf$totalsteps)
+mean(tdf$totalsteps)
 
 
 ```
@@ -59,6 +66,12 @@ median(steps_per_day$x)
 steps_per_interval <- aggregate(myData$steps, by=list(myData$interval),mean)
 
 plot(steps_per_interval$Group.1,steps_per_interval$x ,type = "l", xlab="Interval",ylab="Average number of steps take")
+
+
+  idf <- ddply(df, ~ interval, summarise, meansteps=mean(steps, na.rm=TRUE))
+  summary(idf)
+
+  plot(idf$interval, idf$meansteps, type="l", main="", xlab="Interval", ylab="Average Steps")
 
 
 ```
@@ -85,8 +98,6 @@ sum(is.na(myData1$steps))
 
 2. Devise a strategy for filling in all of the missing values in the dataset with the mean for that 5-minute interval.
 
-Use the previous calculated steps_per_interval to fill in the missing values.
-
 ```{r, echo = TRUE}
 
 # change the column names for steps_per_day and steps_per_interval
@@ -108,6 +119,12 @@ myData1 <- merge(myData1,steps_per_interval,by="interval",all=TRUE)
 
 myData1$steps[is.na(myData1$steps)] <- myData1$steps_per_interval[is.na(myData1$steps)]
 
+  impute.mean <- function(x) replace(x, is.na(x), mean(x, na.rm=TRUE))
+  dfimputed <- ddply(myData1, ~ interval, transform, steps = impute.mean(steps))
+  
+  #Sort the imputed data
+  myData1imputed <- myData1[with(dfimputed, order(date, interval)), ]
+
 
 ```
 
@@ -117,6 +134,10 @@ myData1$steps[is.na(myData1$steps)] <- myData1$steps_per_interval[is.na(myData1$
 steps_per_day1 <- aggregate(myData1$steps, by=list(myData1$date),sum)
 
 hist(steps_per_day1$x,breaks=10,xlab="Number of steps taken each day",main="")
+
+  tdfimputed <- ddply(myData1imputed, ~ date, summarise, totalsteps=sum(steps, na.rm=TRUE))
+  summary(tdf)
+  hist(tdfimputed$totalsteps, breaks=10, main="Total Steps of Imputed Data", xlab="Total Steps", ylab="Frequency")
 
 # the mean and median total number of steps taken per day.
 mean(steps_per_day1$x)

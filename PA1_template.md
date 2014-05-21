@@ -40,11 +40,16 @@ myData$interval <- as.numeric(myData$interval)
 
 
 ```r
-steps_per_day <- aggregate(myData$steps, by = list(myData$date), mean)
-hist(steps_per_day$x, xlab = "Steps_per_day")
+steps_per_day <- aggregate(myData$steps, by = list(myData$date), sum)
+
+hist(steps_per_day$x, breaks = 10, xlab = "Steps_per_day")
 ```
 
 ![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
+
+```r
+
+```
 
 2.Calculate and report the mean and median total number of steps taken per day
 
@@ -54,7 +59,7 @@ mean(steps_per_day$x)
 ```
 
 ```
-## [1] 37.38
+## [1] 10766
 ```
 
 ```r
@@ -63,7 +68,11 @@ median(steps_per_day$x)
 ```
 
 ```
-## [1] 37.38
+## [1] 10765
+```
+
+```r
+
 ```
 
 ## What is the average daily activity pattern?
@@ -79,6 +88,10 @@ plot(steps_per_interval$Group.1, steps_per_interval$x, type = "l", xlab = "Inter
 ```
 
 ![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6.png) 
+
+```r
+
+```
 
 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
@@ -117,6 +130,8 @@ sum(is.na(myData1$steps))
 
 2. Devise a strategy for filling in all of the missing values in the dataset with the mean for that 5-minute interval.
 
+Use the previous calculated steps_per_interval to fill in the missing values.
+
 
 ```r
 
@@ -139,6 +154,7 @@ colnames(steps_per_interval)[2] <- "steps_per_interval"
 myData1 <- merge(myData1, steps_per_interval, by = "interval", all = TRUE)
 
 myData1$steps[is.na(myData1$steps)] <- myData1$steps_per_interval[is.na(myData1$steps)]
+
 ```
 
 
@@ -146,9 +162,10 @@ myData1$steps[is.na(myData1$steps)] <- myData1$steps_per_interval[is.na(myData1$
 
 
 ```r
-steps_per_day1 <- aggregate(myData1$steps, by = list(myData1$date), mean)
+steps_per_day1 <- aggregate(myData1$steps, by = list(myData1$date), sum)
 
-hist(steps_per_day1$x, xlab = "Number of steps taken each day", main = "")
+hist(steps_per_day1$x, breaks = 10, xlab = "Number of steps taken each day", 
+    main = "")
 ```
 
 ![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12.png) 
@@ -160,7 +177,7 @@ mean(steps_per_day1$x)
 ```
 
 ```
-## [1] 37.38
+## [1] 10766
 ```
 
 ```r
@@ -169,7 +186,7 @@ median(steps_per_day1$x)
 ```
 
 ```
-## [1] 37.38
+## [1] 10766
 ```
 
 
@@ -187,6 +204,8 @@ myData1$weekend <- factor(myData1$weekend, labels = c("weekday", "weekend"))
 ```
 
 2.Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). 
+
+Using the xyplot to divide data to two parts, and plot the graphs. It shows therer are different patterns between weekday and wenkend. In weekday morning, people have more walk. In weekend during the day, people have more walk in general.  
 
 ```r
 library(lattice)
